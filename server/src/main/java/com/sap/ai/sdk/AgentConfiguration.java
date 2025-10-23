@@ -14,12 +14,6 @@ import java.util.List;
 @ApplicationScoped
 public class AgentConfiguration {
   @Produces
-  public AgentExecutor agentExecutorStateful() {
-    return new StatefulAgentExecutor();
-  }
-
-  @Produces
-  @DefaultBean
   public AgentExecutor agentExecutorStateless() {
     return new MinimalAgentExecutor();
   }
