@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.sap.ai.sdk</groupId>
+  <artifactId>a2a-app</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <description>A Proof of Concept application for A2A integration using AI SDK</description>
+  <modules>
+    <module>server</module>
+    <module>client</module>
+  </modules>
+
+
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <io.a2a.sdk.version>0.3.0.Beta2</io.a2a.sdk.version>
+    <com.sap.ai.sdk.version>1.12.0</com.sap.ai.sdk.version>
+    <quarkus.platform.version>3.22.3</quarkus.platform.version>
+  </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.sap.ai.sdk</groupId>
+        <artifactId>orchestration</artifactId>
+        <version>${com.sap.ai.sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.a2asdk</groupId>
+        <artifactId>a2a-java-sdk-reference-jsonrpc</artifactId>
+        <version>${io.a2a.sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.a2asdk</groupId>
+        <artifactId>a2a-java-sdk-client</artifactId>
+        <version>${io.a2a.sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.a2asdk</groupId>
+        <artifactId>a2a-java-sdk-client-transport-grpc</artifactId>
+        <version>${io.a2a.sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${quarkus.platform.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <goals>
+              <goal>build</goal>
+              <goal>generate-code</goal>
+              <goal>generate-code-tests</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
