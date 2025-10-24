@@ -5,6 +5,7 @@ import io.a2a.server.agentexecution.AgentExecutor;
 import io.a2a.spec.AgentCapabilities;
 import io.a2a.spec.AgentCard;
 import io.a2a.spec.AgentSkill;
+import io.quarkus.arc.DefaultBean;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import java.util.Collections;
@@ -12,9 +13,15 @@ import java.util.List;
 
 @ApplicationScoped
 public class AgentConfiguration {
+  @DefaultBean
   @Produces
-  public AgentExecutor agentExecutorStateless() {
+  public AgentExecutor agentExecutorMinimal() {
     return new MinimalAgentExecutor();
+  }
+
+  @Produces
+  public AgentExecutor agentExecutorStateful() {
+    return new StatefulAgentExecutor();
   }
 
   @Produces

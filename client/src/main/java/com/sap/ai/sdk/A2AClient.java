@@ -13,7 +13,10 @@ import io.a2a.client.transport.jsonrpc.JSONRPCTransportConfig;
 import io.a2a.spec.A2AClientError;
 import io.a2a.spec.A2AClientException;
 import io.a2a.spec.AgentCard;
+import io.a2a.spec.Artifact;
+import io.a2a.spec.Message;
 import io.a2a.spec.TextPart;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -69,7 +72,7 @@ public class A2AClient {
           if (event instanceof MessageEvent messageEvent) {
             messageEventConsumer(messageEvent);
           } else if (event instanceof TaskEvent taskEvent) {
-            throw new UnsupportedOperationException("Task event handling not implemented yet");
+            taskEventConsumer(taskEvent);
           } else if (event instanceof TaskUpdateEvent updateEvent) {
             throw new UnsupportedOperationException("Task update handling not implemented yet");
           }
@@ -84,5 +87,26 @@ public class A2AClient {
             .map(TextPart.class::cast)
             .map(TextPart::getText)
             .toList());
+  }
+
+  private static void taskEventConsumer(TaskEvent taskEvent) {
+    log.info("Task Id: {}", taskEvent.getTask().getId());
+    log.info("Task Event: {}", taskEvent.getTask().getStatus());
+
+    taskEvent.getTask().getArtifacts().stream()
+        .map(Artifact::parts)
+        .flatMap(Collection::stream)
+        .filter(TextPart.class::isInstance)
+        .map(TextPart.class::cast)
+        .forEach(textPart -> log.info("Task Artifacts Part: {}", textPart.getText()));
+
+    taskEvent.getTask().getHistory().stream()
+        .map(Message::getParts)
+        .flatMap(Collection::stream)
+        .filter(TextPart.class::isInstance)
+        .map(TextPart.class::cast)
+        .forEach(textPart -> log.info("Task History: Part: {}", textPart.getText()));
+
+    log.info("Task History: {}", taskEvent.getTask().getHistory());
   }
 }
