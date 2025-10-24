@@ -8,15 +8,13 @@ import io.a2a.client.TaskEvent;
 import io.a2a.client.TaskUpdateEvent;
 import io.a2a.client.config.ClientConfig;
 import io.a2a.client.http.A2ACardResolver;
+import io.a2a.client.http.JdkA2AHttpClient;
 import io.a2a.client.transport.jsonrpc.JSONRPCTransport;
 import io.a2a.client.transport.jsonrpc.JSONRPCTransportConfig;
 import io.a2a.spec.A2AClientError;
 import io.a2a.spec.A2AClientException;
 import io.a2a.spec.AgentCard;
-import io.a2a.spec.Artifact;
-import io.a2a.spec.Message;
 import io.a2a.spec.TextPart;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -47,7 +45,11 @@ public class A2AClient {
   }
 
   private static AgentCard getAgentCard() throws A2AClientError {
-    return new A2ACardResolver(URL).getAgentCard();
+    // Create logging HTTP client for agent card resolution
+    JdkA2AHttpClient originalHttpClient = new JdkA2AHttpClient();
+    LoggingA2AHttpClient loggingHttpClient = new LoggingA2AHttpClient(originalHttpClient);
+
+    return new A2ACardResolver(loggingHttpClient, URL).getAgentCard();
   }
 
   private static Client getClient(
@@ -60,7 +62,9 @@ public class A2AClient {
 
     return Client.builder(agentCard)
         .clientConfig(clientConfig)
-        .withTransport(JSONRPCTransport.class, new JSONRPCTransportConfig())
+        .withTransport(
+            JSONRPCTransport.class,
+            new JSONRPCTransportConfig(new LoggingA2AHttpClient(new JdkA2AHttpClient())))
         .addConsumers(consumers)
         .streamingErrorHandler(errorHandler)
         .build();
@@ -90,23 +94,6 @@ public class A2AClient {
   }
 
   private static void taskEventConsumer(TaskEvent taskEvent) {
-    log.info("Task Id: {}", taskEvent.getTask().getId());
-    log.info("Task Event: {}", taskEvent.getTask().getStatus());
-
-    taskEvent.getTask().getArtifacts().stream()
-        .map(Artifact::parts)
-        .flatMap(Collection::stream)
-        .filter(TextPart.class::isInstance)
-        .map(TextPart.class::cast)
-        .forEach(textPart -> log.info("Task Artifacts Part: {}", textPart.getText()));
-
-    taskEvent.getTask().getHistory().stream()
-        .map(Message::getParts)
-        .flatMap(Collection::stream)
-        .filter(TextPart.class::isInstance)
-        .map(TextPart.class::cast)
-        .forEach(textPart -> log.info("Task History: Part: {}", textPart.getText()));
-
-    log.info("Task History: {}", taskEvent.getTask().getHistory());
+    log.info("Received Task Id: {}", taskEvent.getTask().getId());
   }
 }
