@@ -17,7 +17,9 @@ import io.a2a.spec.TextPart;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class A2AClient {
 
   private static final String URL = "http://localhost:8080";
@@ -75,12 +77,12 @@ public class A2AClient {
   }
 
   private static void messageEventConsumer(MessageEvent messageEvent) {
-    System.out.println(
-        "Received: \n"
-            + messageEvent.getMessage().getParts().stream()
-                .filter(TextPart.class::isInstance)
-                .map(TextPart.class::cast)
-                .map(TextPart::getText)
-                .toList());
+    log.info(
+        "Received: \n{}",
+        messageEvent.getMessage().getParts().stream()
+            .filter(TextPart.class::isInstance)
+            .map(TextPart.class::cast)
+            .map(TextPart::getText)
+            .toList());
   }
 }

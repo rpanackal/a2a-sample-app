@@ -25,6 +25,7 @@ public class MinimalAgentExecutor implements AgentExecutor {
         new OrchestrationModuleConfig().withLlmConfig(OrchestrationAiModel.GPT_4O);
     OrchestrationChatResponse response = OrchestrationAgent.chat(prompt, config);
 
+    // Response is consumed by the EventQueue to send back to the client
     eventQueue.enqueueEvent(toA2AMessage(request, response));
   }
 
