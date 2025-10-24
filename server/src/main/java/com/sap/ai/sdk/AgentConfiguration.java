@@ -32,6 +32,7 @@ public class AgentConfiguration {
         .description("An agent that retrieves and forecasts weather information.")
         .url("http://localhost:8080/")
         .version("1.0.0")
+        .preferredTransport("HTTP+JSON")
         .defaultInputModes(List.of("text/plain"))
         .defaultOutputModes(List.of("text/plain"))
         .capabilities(new AgentCapabilities.Builder().streaming(false).build())

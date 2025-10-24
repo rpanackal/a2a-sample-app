@@ -8,9 +8,10 @@ import io.a2a.client.TaskEvent;
 import io.a2a.client.TaskUpdateEvent;
 import io.a2a.client.config.ClientConfig;
 import io.a2a.client.http.A2ACardResolver;
+import io.a2a.client.http.A2AHttpClient;
 import io.a2a.client.http.JdkA2AHttpClient;
-import io.a2a.client.transport.jsonrpc.JSONRPCTransport;
-import io.a2a.client.transport.jsonrpc.JSONRPCTransportConfig;
+import io.a2a.client.transport.rest.RestTransport;
+import io.a2a.client.transport.rest.RestTransportConfig;
 import io.a2a.spec.A2AClientError;
 import io.a2a.spec.A2AClientException;
 import io.a2a.spec.AgentCard;
@@ -21,21 +22,21 @@ import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class A2AClient {
+public class Application {
 
   private static final String URL = "http://localhost:8080";
 
   public static void main(String[] args) {
     try {
       AgentCard agentCard = getAgentCard();
-      List<BiConsumer<ClientEvent, AgentCard>> consumers = getAllEventConsumers();
+      List<BiConsumer<ClientEvent, AgentCard>> callbacks = getAllEventCallbacks();
       Consumer<Throwable> errorHandler =
           error -> {
             throw new UnsupportedOperationException("Error handling not implemented yet");
           };
 
-      Client client = getClient(agentCard, consumers, errorHandler);
-      client.sendMessage(A2A.toUserMessage("What is the weather in Potsdam?"));
+      Client agent = getAgent(agentCard, callbacks, errorHandler);
+      agent.sendMessage(A2A.toUserMessage("What is the weather in Potsdam?"));
 
     } catch (A2AClientError e) {
       throw new RuntimeException("Agent card retrieval failed", e);
@@ -45,14 +46,10 @@ public class A2AClient {
   }
 
   private static AgentCard getAgentCard() throws A2AClientError {
-    // Create logging HTTP client for agent card resolution
-    JdkA2AHttpClient originalHttpClient = new JdkA2AHttpClient();
-    LoggingA2AHttpClient loggingHttpClient = new LoggingA2AHttpClient(originalHttpClient);
-
-    return new A2ACardResolver(loggingHttpClient, URL).getAgentCard();
+    return new A2ACardResolver(getCardResolutionHttpClient(), URL).getAgentCard();
   }
 
-  private static Client getClient(
+  private static Client getAgent(
       AgentCard agentCard,
       List<BiConsumer<ClientEvent, AgentCard>> consumers,
       Consumer<Throwable> errorHandler)
@@ -62,28 +59,34 @@ public class A2AClient {
 
     return Client.builder(agentCard)
         .clientConfig(clientConfig)
-        .withTransport(
-            JSONRPCTransport.class,
-            new JSONRPCTransportConfig(new LoggingA2AHttpClient(new JdkA2AHttpClient())))
+        .withTransport(RestTransport.class, new RestTransportConfig(getMessagingHttpClient()))
         .addConsumers(consumers)
         .streamingErrorHandler(errorHandler)
         .build();
   }
 
-  private static List<BiConsumer<ClientEvent, AgentCard>> getAllEventConsumers() {
+  private static A2AHttpClient getCardResolutionHttpClient() {
+    return new LoggingA2AHttpClient(new JdkA2AHttpClient());
+  }
+
+  private static A2AHttpClient getMessagingHttpClient() {
+    return new LoggingA2AHttpClient(new JdkA2AHttpClient());
+  }
+
+  private static List<BiConsumer<ClientEvent, AgentCard>> getAllEventCallbacks() {
     return List.of(
         (event, card) -> {
           if (event instanceof MessageEvent messageEvent) {
-            messageEventConsumer(messageEvent);
+            messageCallback(messageEvent);
           } else if (event instanceof TaskEvent taskEvent) {
-            taskEventConsumer(taskEvent);
+            taskCallback(taskEvent);
           } else if (event instanceof TaskUpdateEvent updateEvent) {
             throw new UnsupportedOperationException("Task update handling not implemented yet");
           }
         });
   }
 
-  private static void messageEventConsumer(MessageEvent messageEvent) {
+  private static void messageCallback(MessageEvent messageEvent) {
     log.info(
         "Received: \n{}",
         messageEvent.getMessage().getParts().stream()
@@ -93,7 +96,7 @@ public class A2AClient {
             .toList());
   }
 
-  private static void taskEventConsumer(TaskEvent taskEvent) {
+  private static void taskCallback(TaskEvent taskEvent) {
     log.info("Received Task Id: {}", taskEvent.getTask().getId());
   }
 }

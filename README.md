@@ -47,7 +47,7 @@ In a separate terminal, from the project root directory:
 
 ```bash
 cd client
-mvn exec:java -Dexec.mainClass="com.sap.ai.sdk.A2AClient"
+mvn exec:java -Dexec.mainClass="com.sap.ai.sdk.Application"
 ```
 
 The client will connect to the server and send a sample message, demonstrating the A2A communication flow.
