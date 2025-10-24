@@ -66,6 +66,7 @@
         <artifactId>slf4j-simple</artifactId>
         <version>${slf4j-simple.version}</version>
       </dependency>
+      <!-- Force protobuf to version 4.31.1 for client   -->
       <dependency>
         <groupId>com.google.protobuf</groupId>
         <artifactId>protobuf-java</artifactId>

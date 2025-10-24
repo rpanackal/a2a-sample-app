@@ -15,7 +15,6 @@ import io.a2a.client.transport.rest.RestTransportConfig;
 import io.a2a.spec.A2AClientError;
 import io.a2a.spec.A2AClientException;
 import io.a2a.spec.AgentCard;
-import io.a2a.spec.TextPart;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -87,13 +86,7 @@ public class Application {
   }
 
   private static void messageCallback(MessageEvent messageEvent) {
-    log.info(
-        "Received: \n{}",
-        messageEvent.getMessage().getParts().stream()
-            .filter(TextPart.class::isInstance)
-            .map(TextPart.class::cast)
-            .map(TextPart::getText)
-            .toList());
+    log.info("Received Message Id: {}", messageEvent.getMessage().getMessageId());
   }
 
   private static void taskCallback(TaskEvent taskEvent) {

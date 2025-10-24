@@ -13,7 +13,7 @@ import java.util.List;
 
 @ApplicationScoped
 public class AgentConfiguration {
-  @DefaultBean
+  @DefaultBean // Mark it as the fallback bean, not the primary one
   @Produces
   public AgentExecutor agentExecutorMinimal() {
     return new MinimalAgentExecutor();
@@ -35,7 +35,8 @@ public class AgentConfiguration {
         .preferredTransport("HTTP+JSON")
         .defaultInputModes(List.of("text/plain"))
         .defaultOutputModes(List.of("text/plain"))
-        .capabilities(new AgentCapabilities.Builder().streaming(false).build())
+        .capabilities(
+            new AgentCapabilities.Builder().streaming(false).stateTransitionHistory(true).build())
         .skills(getAgentSkills())
         .build();
   }

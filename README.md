@@ -4,8 +4,12 @@ This project demonstrates a minimal implementation of an Agent-to-Agent (A2A) cl
 
 ## Project Structure
 
-- **server/**: A2A server implementation using Quarkus and SAP Cloud SDK for AI
+- **server/**: A2A server contains implementation of `AgentExecutor`, the transport agnostic component that processes incoming A2A messages and generates appropriate responses.
+    - A stateless (fire-and-forget) agent that responds to weather queries with `Message` events only
+    - A stateful agent that responds with `Task` events only. Look at the [Resources](#resources) section for more details on Tasks vs Messages
 - **client/**: A2A client implementation for connecting to and communicating with the server
+
+The project is configured to use REST Transport instead of the default JSON-RPC.
 
 ## Prerequisites
 
@@ -54,9 +58,11 @@ The client will connect to the server and send a sample message, demonstrating t
 
 ### Expected Behavior
 
-When running the client, you should see log output showing the agent's response to the sample weather query, demonstrating successful A2A protocol communication between client and server.
+When running the client, you should see log output showing the client request and agent's response to the sample weather query, demonstrating successful A2A protocol communication between client and server. Currently, the HTTP+JSON/REST transport is used for communication.
 
 ## Setting up a Simple A2A Server
+
+Below is an example of setting up a minimal A2A server with a custom Agent Card and Agent Executor.
 
 ### 1. Define the Agent Card
 
@@ -132,8 +138,6 @@ public class MinimalAgentExecutor implements AgentExecutor {
 }
 
 ```
-
-For full implementation details, refer to the source code in the `server/` directory.
 
 ## Resources
 
