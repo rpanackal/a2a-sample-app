@@ -1,15 +1,14 @@
 # A2A Sample Application
 
-This project demonstrates a minimal implementation of an Agent-to-Agent (A2A) client and server integrating the A2A Java SDK with the SAP AI SDK for Java. The A2A protocol defines a standard for communication between AI agents, allowing them to collaborate and exchange information efficiently.
-
+The A2A (Agent-to-Agent) protocol defines a standard for communication between AI agents, allowing them to collaborate and exchange information efficiently. This project demonstrates a minimal implementation of an A2A client and server that integrates the A2A Java SDK with the SAP AI SDK for Java.
 ## Project Structure
 
-- **server/**: A2A server contains implementation of `AgentExecutor`, the transport agnostic component that processes incoming A2A messages and generates appropriate responses.
+- **server/**: Contains A2A server implementations of `AgentExecutor`, the transport-agnostic component that processes incoming A2A messages and generates appropriate responses:
     - A stateless (fire-and-forget) agent that responds to weather queries with `Message` events only
-    - A stateful agent that responds with `Task` events only. Look at the [Resources](#resources) section for more details on Tasks vs Messages
-- **client/**: A2A client implementation for connecting to and communicating with the server
+    - A stateful agent that responds with `Task` events only. See the [Resources](#resources) section for more details on Tasks vs Messages
+- **client/**: Contains the A2A client implementation for connecting to and communicating with the server
 
-The project is configured to use REST Transport instead of the default JSON-RPC.
+This project is configured to use HTTP+JSON/REST transport instead of the default JSON-RPC transport.
 
 ## Prerequisites
 
@@ -54,26 +53,23 @@ cd client
 mvn exec:java -Dexec.mainClass="org.example.a2a.client.Application"
 ```
 
-The client will connect to the server and send a sample message, demonstrating the A2A communication flow.
-
-The server is expected to respond with a `Task` and rhe client by default asks for non-streaming response.
-
-To see streaming response, set `IS_STREAMING` to `true` in the client `Application` class.
+The client will connect to the server and send a sample weather query, demonstrating the A2A communication flow.
 
 ### Expected Behavior
 
-When running the client, you should see log output showing the client request and agent's response to the sample weather query, demonstrating successful A2A protocol communication between client and server. Currently, the HTTP+JSON/REST transport is used for communication.
+When you run the client, you should see log output showing the client request and the agent's response to the sample weather query. This demonstrates successful A2A protocol communication between client and server using HTTP+JSON/REST transport.
+
+By default, the server responds with a `Task` and the client requests a non-streaming response. To see streaming responses, set `IS_STREAMING` to `true` in the client `Application` class.
 
 ## Setting up a Simple A2A Server
 
-Below is an example of setting up a minimal A2A server with a custom Agent Card and Agent Executor.
+Below is an example of setting up a minimal A2A server with a custom Agent Card and Agent Executor. For more comprehensive examples, see the actual implementations in this repository.
 
 ### 1. Define the Agent Card
 
-The Agent Card is a JSON representation of an AI agent's identity, capabilities and other metadata.
-The Agent Card is used by other discover the most relevant agents to interact with for solving specific tasks.
+The Agent Card is a JSON representation of an AI agent's identity, capabilities, and other metadata. It is used by others to discover the most relevant agents to interact with for solving specific tasks.
 
-Importantly, it is **purely a placard** and does not have implications on the agent's implementation. Agent skills for example may correspond to one or many tools the agent posses, abstracting them away as skills. To take it further, a routing agent may list _hotel booking_, _flight booking_ and _car rental_ as skills, but delegate the actual work to specialized agents.
+The Agent Card is **purely a placard** and does not have implications on the agent's actual implementation. For example, agent skills may correspond to one or many tools the agent possesses, abstracting them away as high-level capabilities. A routing agent could list _hotel booking_, _flight booking_, and _car rental_ as skills while delegating the actual work to specialized agents.
 
 ```java
 
@@ -109,9 +105,9 @@ public class AgentConfiguration {
 
 ```
 
-### 2. Implement the Agent Executor
+### 2. Implement the `AgentExecutor`
 
-An Agent Executor is responsible for handling incoming A2A messages and executing the corresponding logic. Below is a simple stateless implementation that responds to weather queries by integrating with the SAP AI SDK.
+The `AgentExecutor` is responsible for handling incoming A2A messages and executing the corresponding logic. Below is a simple stateless implementation that responds to weather queries by integrating with the SAP AI SDK.
 
 ```java
 
