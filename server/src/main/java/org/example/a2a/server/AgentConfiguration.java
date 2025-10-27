@@ -1,4 +1,4 @@
-package com.sap.ai.sdk;
+package org.example.a2a.server;
 
 import io.a2a.server.PublicAgentCard;
 import io.a2a.server.agentexecution.AgentExecutor;
@@ -37,7 +37,7 @@ public class AgentConfiguration {
         .defaultOutputModes(List.of("text/plain"))
         .capabilities(
             new AgentCapabilities.Builder()
-                .streaming(false)
+                .streaming(true)
                 // Whether server maintain task lifecycle information after task completion
                 .stateTransitionHistory(false)
                 .pushNotifications(false)

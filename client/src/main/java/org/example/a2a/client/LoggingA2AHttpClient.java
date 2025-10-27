@@ -1,4 +1,4 @@
-package com.sap.ai.sdk;
+package org.example.a2a.client;
 
 import io.a2a.client.http.A2AHttpClient;
 import io.a2a.client.http.A2AHttpResponse;

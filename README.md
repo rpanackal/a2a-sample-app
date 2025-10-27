@@ -51,10 +51,14 @@ In a separate terminal, from the project root directory:
 
 ```bash
 cd client
-mvn exec:java -Dexec.mainClass="com.sap.ai.sdk.Application"
+mvn exec:java -Dexec.mainClass="org.example.a2a.client.Application"
 ```
 
 The client will connect to the server and send a sample message, demonstrating the A2A communication flow.
+
+The server is expected to respond with a `Task` and rhe client by default asks for non-streaming response.
+
+To see streaming response, set `IS_STREAMING` to `true` in the client `Application` class.
 
 ### Expected Behavior
 

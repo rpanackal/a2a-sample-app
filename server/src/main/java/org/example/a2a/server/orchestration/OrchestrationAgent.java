@@ -1,5 +1,11 @@
-package com.sap.ai.sdk.orchestration;
+package org.example.a2a.server.orchestration;
 
+import com.sap.ai.sdk.orchestration.AssistantMessage;
+import com.sap.ai.sdk.orchestration.OrchestrationChatResponse;
+import com.sap.ai.sdk.orchestration.OrchestrationClient;
+import com.sap.ai.sdk.orchestration.OrchestrationModuleConfig;
+import com.sap.ai.sdk.orchestration.OrchestrationPrompt;
+import com.sap.ai.sdk.orchestration.UserMessage;
 import io.a2a.server.agentexecution.RequestContext;
 import io.a2a.spec.Message;
 import io.a2a.spec.TextPart;
@@ -27,14 +33,15 @@ public class OrchestrationAgent {
   }
 
   private static AssistantMessage toOrchestrationAssistantMessage(Message message) {
-    List<ContentItem> textItems =
+    List<String> textParts =
         message.getParts().stream()
             .filter(TextPart.class::isInstance)
             .map(TextPart.class::cast)
             .map(TextPart::getText)
-            .<ContentItem>map(TextItem::new)
             .toList();
-    return new AssistantMessage(new MessageContent(textItems));
+
+    return com.sap.ai.sdk.orchestration.Message.assistant(
+        String.join(System.lineSeparator(), textParts));
   }
 
   public static List<com.sap.ai.sdk.orchestration.Message> toOrchestrationMessages(

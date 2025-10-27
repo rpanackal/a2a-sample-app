@@ -1,8 +1,8 @@
-package com.sap.ai.sdk;
+package org.example.a2a.server;
 
-import static com.sap.ai.sdk.orchestration.OrchestrationAgent.toOrchestrationUserMessage;
+import static org.example.a2a.server.orchestration.OrchestrationAgent.toOrchestrationUserMessage;
 
-import com.sap.ai.sdk.orchestration.OrchestrationAgent;
+import org.example.a2a.server.orchestration.OrchestrationAgent;
 import com.sap.ai.sdk.orchestration.OrchestrationAiModel;
 import com.sap.ai.sdk.orchestration.OrchestrationChatResponse;
 import com.sap.ai.sdk.orchestration.OrchestrationModuleConfig;
