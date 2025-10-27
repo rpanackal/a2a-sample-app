@@ -20,15 +20,29 @@ import java.util.Optional;
 
 public class StatefulAgentExecutor implements AgentExecutor {
 
+  /**
+   * Handles incoming message for all supported transport mechanisms.
+   *
+   * <p>More precisely, this method is invoked when the client sends a message using the {@code
+   * sendMessage(...)} method.
+   *
+   * @param context The request context containing incoming data and any related state stored on the
+   *     server-side, such as tasks.
+   * @param eventQueue The event queue used to enqueue response events to be sent back to the
+   *     client.
+   * @throws JSONRPCError If an error occurs during the processing of the JSON-RPC transport.
+   */
   @Override
-  public void execute(RequestContext request, EventQueue eventQueue) throws JSONRPCError {
+  public void execute(RequestContext context, EventQueue eventQueue) throws JSONRPCError {
+    // TaskUpdater helps manage task lifecycle and emit events
+    TaskUpdater updater = new TaskUpdater(context, eventQueue);
 
-    // TaskUpdater helps manage task lifecycle and state transitions.
-    TaskUpdater updater = new TaskUpdater(request, eventQueue);
+    // Only non-null if a task id was referenced in the request and the TaskStore is enabled.
+    // A TaskStore is a server-side storage for persisting task state across multiple requests.
+    Task existingTask = context.getTask();
 
-    Task existingTask = request.getTask();
-    if (existingTask == null) {
-      // Starts a new task if none exists
+    if (existingTask == null || existingTask.getStatus().state().isFinal()) {
+      // Starts a new task if none exists.
       updater.submit();
     }
 
@@ -36,10 +50,9 @@ public class StatefulAgentExecutor implements AgentExecutor {
     updater.startWork();
 
     // Extract current user message
-    Message userMessage = request.getMessage();
+    Message userMessage = context.getMessage();
     OrchestrationPrompt prompt = new OrchestrationPrompt(toOrchestrationUserMessage(userMessage));
 
-    // TODO: What if the message history contains non-user messages?
     Optional.ofNullable(existingTask)
         .map(Task::getHistory)
         .map(OrchestrationAgent::toOrchestrationMessages)

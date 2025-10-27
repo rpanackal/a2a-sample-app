@@ -16,9 +16,21 @@ import io.a2a.spec.JSONRPCError;
 
 public class MinimalAgentExecutor implements AgentExecutor {
 
+  /**
+   * Handles incoming message for all supported transport mechanisms.
+   *
+   * <p>More precisely, this method is invoked when the client sends a message using the {@code
+   * sendMessage(...)} method.
+   *
+   * @param context The request context containing incoming data and any related state stored on the
+   *     server-side, such as tasks.
+   * @param eventQueue The event queue used to enqueue response events to be sent back to the
+   *     client.
+   * @throws JSONRPCError If an error occurs during the processing of the JSON-RPC transport.
+   */
   @Override
-  public void execute(RequestContext request, EventQueue eventQueue) throws JSONRPCError {
-    UserMessage userMessage = toOrchestrationUserMessage(request.getMessage());
+  public void execute(RequestContext context, EventQueue eventQueue) throws JSONRPCError {
+    UserMessage userMessage = toOrchestrationUserMessage(context.getMessage());
 
     OrchestrationPrompt prompt = new OrchestrationPrompt(userMessage);
     OrchestrationModuleConfig config =
@@ -26,7 +38,7 @@ public class MinimalAgentExecutor implements AgentExecutor {
     OrchestrationChatResponse response = OrchestrationAgent.chat(prompt, config);
 
     // Response is consumed by the EventQueue to send back to the client
-    eventQueue.enqueueEvent(toA2AMessage(request, response));
+    eventQueue.enqueueEvent(toA2AMessage(context, response));
   }
 
   @Override

@@ -26,21 +26,35 @@ public class OrchestrationAgent {
     return userMessage;
   }
 
+  private static AssistantMessage toOrchestrationAssistantMessage(Message message) {
+    List<ContentItem> textItems =
+        message.getParts().stream()
+            .filter(TextPart.class::isInstance)
+            .map(TextPart.class::cast)
+            .map(TextPart::getText)
+            .<ContentItem>map(TextItem::new)
+            .toList();
+    return new AssistantMessage(new MessageContent(textItems));
+  }
+
   public static List<com.sap.ai.sdk.orchestration.Message> toOrchestrationMessages(
       List<Message> messages) {
     return messages.stream()
-        .filter(m -> m.getRole() == Message.Role.USER)
-        .map(OrchestrationAgent::toOrchestrationUserMessage)
-        .map(com.sap.ai.sdk.orchestration.Message.class::cast)
+        .map(
+            msg ->
+                switch (msg.getRole()) {
+                  case USER -> toOrchestrationUserMessage(msg);
+                  case AGENT -> toOrchestrationAssistantMessage(msg);
+                })
         .toList();
   }
 
-  public static Message toA2AMessage(RequestContext request, OrchestrationChatResponse response) {
+  public static Message toA2AMessage(RequestContext context, OrchestrationChatResponse response) {
     return new Message.Builder()
         .role(Message.Role.AGENT)
         .messageId(UUID.randomUUID().toString())
-        .contextId(request.getContextId())
-        .taskId(request.getTaskId())
+        .contextId(context.getContextId())
+        .taskId(context.getTaskId())
         .parts(List.of(new TextPart(response.getContent())))
         .build();
   }

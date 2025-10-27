@@ -36,7 +36,12 @@ public class AgentConfiguration {
         .defaultInputModes(List.of("text/plain"))
         .defaultOutputModes(List.of("text/plain"))
         .capabilities(
-            new AgentCapabilities.Builder().streaming(false).stateTransitionHistory(true).build())
+            new AgentCapabilities.Builder()
+                .streaming(false)
+                // Whether server maintain task lifecycle information after task completion
+                .stateTransitionHistory(false)
+                .pushNotifications(false)
+                .build())
         .skills(getAgentSkills())
         .build();
   }

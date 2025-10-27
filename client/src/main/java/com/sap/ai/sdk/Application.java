@@ -36,7 +36,6 @@ public class Application {
 
       Client agent = getAgent(agentCard, callbacks, errorHandler);
       agent.sendMessage(A2A.toUserMessage("What is the weather in Potsdam?"));
-
     } catch (A2AClientError e) {
       throw new RuntimeException("Agent card retrieval failed", e);
     } catch (A2AClientException e) {
